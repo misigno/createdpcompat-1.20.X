@@ -5,6 +5,6 @@ Doing so enables train to move to any dimension provided the user or modpack mak
 
 Exemple Below :
 
-![Example](https://github.com/misigno/createdpcompat-1.20.X/blob/master/Example/example.gif)
+![Example](https://github.com/misigno/createdpcompat-1.20.X/blob/1.20.X/Example/example.gif)
 
 Compatible with Steam 'n' Rails : https://github.com/Layers-of-Railways/Railway version : 1.5.0
