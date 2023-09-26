@@ -1,11 +1,17 @@
+//file:noinspection GroovyAssignabilityCheck
+//file:noinspection GroovyAccessibility
+//file:noinspection GradlePackageVersionRange
 plugins {
-	id 'fabric-loom' version '1.3-SNAPSHOT'
-	id "io.github.juuxel.loom-vineflower" version "1.11.0"
-	id "io.github.p03w.machete" version "1.+"
-	id 'maven-publish'
+	id "fabric-loom" version "1.0.+"
+	id "io.github.juuxel.loom-quiltflower" version "1.+" // Quiltflower, a better decompiler
+	id "io.github.p03w.machete" version "1.+" // automatic jar compressing on build
+	id "maven-publish"
 }
 
-version = project.mod_version
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+archivesBaseName = project.archives_base_name
 group = project.maven_group
 
 // Formats the mod version to include the Minecraft version and build number (if present)
@@ -14,11 +20,8 @@ String buildNumber = System.getenv("GITHUB_RUN_NUMBER")
 version = "${mod_version}+${minecraft_version}" + (buildNumber != null ? "-${buildNumber}" : "")
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
+	maven { url = "https://maven.shedaniel.me/" } // Cloth Config, REI
+	maven { url = "https://dvs1.progwml6.com/files/maven/" } // JEI
 	maven { url = "https://maven.parchmentmc.org" } // Parchment mappings
 	maven { url = "https://maven.quiltmc.org/repository/release" } // Quilt Mappings
 	maven { url = "https://api.modrinth.com/maven" } // LazyDFU
@@ -31,20 +34,8 @@ repositories {
 	maven {url = "https://maven.kyrptonaught.dev"}// CustomPortalAPI
 }
 
-loom {
-    splitEnvironmentSourceSets()
-
-	mods {
-		"modid" {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
-	}
-
-}
-
 dependencies {
-	// To change the versions see the gradle.properties file
+	// Setup
 	minecraft("com.mojang:minecraft:${minecraft_version}")
 	mappings(loom.layered {
 		it.mappings("org.quiltmc:quilt-mappings:${minecraft_version}+build.${qm_version}:intermediary-v2")
@@ -66,11 +57,21 @@ dependencies {
 	//Custom Portal API
 	modImplementation("net.kyrptonaught:customportalapi:${Cutom_Portal_API_version}")
 
-	
-	// Uncomment the following line to enable the deprecated Fabric API modules. 
-	// These are included in the Fabric API production distribution and allow you to update your mod to the latest modules at a later more convenient time.
-
-	// modImplementation "net.fabricmc.fabric-api:fabric-api-deprecated:${project.fabric_version}"
+	// Recipe Viewers - Create Fabric supports JEI, REI, and EMI.
+	// See root gradle.properties to choose which to use at runtime.
+	switch (recipe_viewer.toLowerCase(Locale.ROOT)) {
+		case "jei": modLocalRuntime("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"); break
+		case "rei": modLocalRuntime("me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}"); break
+		case "emi": modLocalRuntime("dev.emi:emi:${emi_version}"); break
+		case "disabled": break
+		default: println("Unknown recipe viewer specified: ${recipe_viewer}. Must be JEI, REI, EMI, or disabled.")
+	}
+	// if you would like to add integration with them, uncomment them here.
+//    modCompileOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_fabric_version}")
+//    modCompileOnly("mezz.jei:jei-${minecraft_version}-common:${jei_fabric_version}")
+//    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-fabric:${rei_version}")
+//    modCompileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:${rei_version}")
+//    modCompileOnly("dev.emi:emi:${emi_version}")
 }
 
 processResources {
@@ -89,32 +90,26 @@ processResources {
 		expand properties
 	}
 }
+
 machete {
 	// disable machete locally for faster builds
 	enabled = buildNumber != null
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+	it.options.release = Integer.parseInt(sourceCompatibility)
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
 	withSourcesJar()
-
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.base.archivesName.get()}"}
+		rename { "${it}_${project.archivesBaseName}" }
 	}
 }
 
-// configure the maven publication
 publishing {
 	publications {
 		mavenJava(MavenPublication) {

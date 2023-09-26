@@ -7,6 +7,9 @@
   "authors": [
     "Misigno"
   ],
+  "contact": {
+    "sources": "https://github.com/misigno/createdpcompat-1.20.X"
+  },
   "license": "MIT",
   "icon": "assets/createdpcompat/icon.png",
   "environment": "*",
