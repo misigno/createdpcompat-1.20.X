@@ -43,7 +43,7 @@ public abstract class CreateDPCompatMixin {
 	PortalLink link;
 	ServerLevel otherLevel;
 
-
+/*
 	@Inject(at = @At(value = "HEAD"), method = "getOtherSide")
 	private void getOtherSideData(ServerLevel level, BlockFace inboundTrack, CallbackInfoReturnable<Pair<ServerLevel, BlockFace>> cir)
 	{
@@ -58,7 +58,7 @@ public abstract class CreateDPCompatMixin {
 		}
 	}
 
-	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getBlock()Lnet/minecraft/world/level/block/Block;" ,ordinal = 0), method = "connectToNether")
+	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getBlock()Lnet/minecraft/world/level/block/Block;" ), method = "connectToPortal")
 	private Block isNetherPortalBlock(BlockState instance) {
 
 		if (instance.getBlock() instanceof NetherPortalBlock || instance.getBlock() instanceof CustomPortalBlock)
@@ -101,5 +101,5 @@ public abstract class CreateDPCompatMixin {
 		if(this.portalState.getBlock() instanceof NetherPortalBlock)
 			return instance.getValue(NetherPortalBlock.AXIS);
 		return instance.getValue(CustomPortalBlock.AXIS);
-	}
+	}*/
 }

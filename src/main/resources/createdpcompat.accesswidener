@@ -1,0 +1,3 @@
+accessWidener v1 named
+
+accessible method org/betterx/betterend/portal/TravelerState findDimensionEntryPoint (Lnet/minecraft/server/level/ServerLevel;)Lnet/minecraft/world/level/portal/PortalInfo;
